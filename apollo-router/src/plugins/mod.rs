@@ -42,7 +42,7 @@ pub(crate) mod override_url;
 pub(crate) mod progressive_override;
 mod record_replay;
 pub(crate) mod response_cache;
-pub(crate) mod rhai;
+pub mod rhai;
 pub(crate) mod subscription;
 pub(crate) mod telemetry;
 #[cfg(test)]
