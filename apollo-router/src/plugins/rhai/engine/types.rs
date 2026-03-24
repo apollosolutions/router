@@ -8,7 +8,7 @@ use crate::graphql::Response;
 use crate::http_ext;
 
 /// Helper trait for safely working with Option-wrapped values in shared mutable state.
-pub(crate) trait OptionDance<T> {
+pub trait OptionDance<T> {
     fn with_mut<R>(&self, f: impl FnOnce(&mut T) -> R) -> R;
 
     fn replace(&self, f: impl FnOnce(T) -> T);
@@ -17,7 +17,7 @@ pub(crate) trait OptionDance<T> {
 }
 
 /// Shared mutable state wrapped in Option for safe access from Rhai scripts.
-pub(crate) type SharedMut<T> = rhai::Shared<Mutex<Option<T>>>;
+pub type SharedMut<T> = rhai::Shared<Mutex<Option<T>>>;
 
 impl<T> OptionDance<T> for SharedMut<T> {
     fn with_mut<R>(&self, f: impl FnOnce(&mut T) -> R) -> R {
@@ -43,58 +43,58 @@ impl<T> OptionDance<T> for SharedMut<T> {
 
 /// Router stage first request wrapper for Rhai.
 #[derive(Default)]
-pub(crate) struct RhaiRouterFirstRequest {
-    pub(crate) context: Context,
-    pub(crate) request: http::Request<()>,
+pub struct RhaiRouterFirstRequest {
+    pub context: Context,
+    pub request: http::Request<()>,
 }
 
 /// Router stage chunked request wrapper for Rhai.
 #[allow(dead_code)]
 #[derive(Default)]
-pub(crate) struct RhaiRouterChunkedRequest {
-    pub(crate) context: Context,
-    pub(crate) request: Bytes,
+pub struct RhaiRouterChunkedRequest {
+    pub context: Context,
+    pub request: Bytes,
 }
 
 /// Router stage response wrapper for Rhai.
 #[derive(Default)]
-pub(crate) struct RhaiRouterResponse {
-    pub(crate) context: Context,
-    pub(crate) response: http::Response<()>,
+pub struct RhaiRouterResponse {
+    pub context: Context,
+    pub response: http::Response<()>,
 }
 
 /// Router stage chunked response wrapper for Rhai.
 #[allow(dead_code)]
 #[derive(Default)]
-pub(crate) struct RhaiRouterChunkedResponse {
-    pub(crate) context: Context,
-    pub(crate) response: Bytes,
+pub struct RhaiRouterChunkedResponse {
+    pub context: Context,
+    pub response: Bytes,
 }
 
 /// Supergraph stage response wrapper for Rhai.
 #[derive(Default)]
-pub(crate) struct RhaiSupergraphResponse {
-    pub(crate) context: Context,
-    pub(crate) response: http_ext::Response<Response>,
+pub struct RhaiSupergraphResponse {
+    pub context: Context,
+    pub response: http_ext::Response<Response>,
 }
 
 /// Supergraph stage deferred response wrapper for Rhai.
 #[derive(Default)]
-pub(crate) struct RhaiSupergraphDeferredResponse {
-    pub(crate) context: Context,
-    pub(crate) response: Response,
+pub struct RhaiSupergraphDeferredResponse {
+    pub context: Context,
+    pub response: Response,
 }
 
 /// Execution stage response wrapper for Rhai.
 #[derive(Default)]
-pub(crate) struct RhaiExecutionResponse {
-    pub(crate) context: Context,
-    pub(crate) response: http_ext::Response<Response>,
+pub struct RhaiExecutionResponse {
+    pub context: Context,
+    pub response: http_ext::Response<Response>,
 }
 
 /// Execution stage deferred response wrapper for Rhai.
 #[derive(Default)]
-pub(crate) struct RhaiExecutionDeferredResponse {
-    pub(crate) context: Context,
-    pub(crate) response: Response,
+pub struct RhaiExecutionDeferredResponse {
+    pub context: Context,
+    pub response: Response,
 }
