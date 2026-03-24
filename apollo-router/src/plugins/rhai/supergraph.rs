@@ -7,10 +7,10 @@ use tower::BoxError;
 use super::ErrorDetails;
 use crate::Context;
 use crate::graphql::Error;
-pub(crate) use crate::services::supergraph::*;
+pub use crate::services::supergraph::*;
 
-pub(crate) type FirstResponse = super::engine::RhaiSupergraphResponse;
-pub(crate) type DeferredResponse = super::engine::RhaiSupergraphDeferredResponse;
+pub type FirstResponse = super::engine::RhaiSupergraphResponse;
+pub type DeferredResponse = super::engine::RhaiSupergraphDeferredResponse;
 
 pub(super) fn request_failure(
     context: Context,
