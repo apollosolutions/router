@@ -126,6 +126,8 @@ pub mod _private {
     pub use crate::services::APOLLO_GRAPH_REF;
     pub use crate::services::APOLLO_KEY;
 
+    pub use crate::plugins::rhai;
+
     pub fn compute_job_queued_count() -> &'static std::sync::atomic::AtomicUsize {
         &crate::compute_job::queue().queued_count
     }
