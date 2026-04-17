@@ -23,12 +23,10 @@ jobs:
           submodules: recursive
 
       - name: Install Rust toolchain
-        # Toolchain channel + components are pinned in rust-toolchain.toml;
-        # this action reads that file. We disable its built-in cache so the
-        # dedicated Swatinem/rust-cache step below owns caching.
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           cache: false
+          rustflags: ""
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
