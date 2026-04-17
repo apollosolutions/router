@@ -220,21 +220,27 @@ impl Context {
     /// Semantics:
     ///  - If the key was absent, returns `Ok(None)`.
     ///  - If the key was present but the stored value fails to deserialize into `V`,
-    ///    returns `Err`.
+    ///    the entry is preserved and `Err` is returned (mirrors `insert` / `upsert`,
+    ///    which do not discard an entry on a failed deserialize).
     ///  - On success the entry has been removed from the context.
-    ///
-    /// Concurrency posture matches `insert` / `upsert`: `&self`, internal
-    /// synchronization provided by the backing `DashMap`.
     pub fn remove<K, V>(&self, key: K) -> Result<Option<V>, BoxError>
     where
         K: Into<String>,
         V: for<'de> serde::Deserialize<'de>,
     {
-        self.entries
-            .remove(&key.into())
-            .map(|(_, v)| serde_json_bytes::from_value(v))
-            .transpose()
-            .map_err(|e| e.into())
+        let key = key.into();
+        match self.entries.remove(&key) {
+            None => Ok(None),
+            Some((_, v)) => match serde_json_bytes::from_value::<V>(v.clone()) {
+                Ok(deserialized) => Ok(Some(deserialized)),
+                Err(e) => {
+                    // Preserve the entry on deserialize failure to match
+                    // insert / upsert semantics.
+                    self.entries.insert(key, v);
+                    Err(e.into())
+                }
+            },
+        }
     }
 
     /// Upsert a JSON value in the context using the provided key and resolving
@@ -346,8 +352,12 @@ mod test {
         assert!(c.insert("key", "not a number".to_string()).is_ok());
         // Key is present but the stored value doesn't deserialize into the requested type.
         assert!(c.remove::<_, usize>("key").is_err());
-        // Failed deserialization still consumed the entry from the DashMap — document this.
-        assert!(!c.contains_key("key"));
+        // The entry must be preserved on a failed deserialize (matches insert / upsert).
+        assert!(c.contains_key("key"));
+        assert_eq!(
+            c.get::<_, String>("key").unwrap(),
+            Some("not a number".to_string())
+        );
     }
 
     #[test]
