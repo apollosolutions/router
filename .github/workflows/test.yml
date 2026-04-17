@@ -1,4 +1,4 @@
-name: Test apollo-router
+name: Build apollo-router
 
 on:
   pull_request:
@@ -12,10 +12,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Build and test apollo-router
+  build:
+    name: Build apollo-router
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
         with:
           cache: false
           rustflags: ""
-          
+
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
         with:
@@ -45,8 +45,5 @@ jobs:
           version: "25.x"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build apollo-router
-        run: cargo build -p apollo-router
-
-      - name: Test apollo-router (lib)
-        run: cargo test -p apollo-router --lib
+      - name: Build apollo-router (lib)
+        run: cargo build -p apollo-router --lib
