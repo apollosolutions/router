@@ -1,0 +1,49 @@
+name: Test apollo-router
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature/rhaitest-v2.12.0
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build and test apollo-router
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust toolchain
+        # Toolchain channel + components are pinned in rust-toolchain.toml;
+        # this action reads that file. We disable its built-in cache so the
+        # dedicated Swatinem/rust-cache step below owns caching.
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: false
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: apollo-router
+          cache-on-failure: true
+
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "25.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build apollo-router
+        run: cargo build -p apollo-router
+
+      - name: Test apollo-router (lib)
+        run: cargo test -p apollo-router --lib
