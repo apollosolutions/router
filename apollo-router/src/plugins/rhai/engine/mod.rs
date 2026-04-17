@@ -780,6 +780,17 @@ pub mod router_plugin {
         Ok(obj.with_mut(|response| response.id.to_string()))
     }
 
+    #[rhai_fn(set = "subgraph_request_id", return_raw)]
+    pub(crate) fn set_subgraph_id_response(
+        obj: &mut SharedMut<subgraph::Response>,
+        id: String,
+    ) -> Result<(), Box<EvalAltResult>> {
+        obj.with_mut(|response| {
+            response.set_subgraph_request_id(crate::services::SubgraphRequestId(id));
+        });
+        Ok(())
+    }
+
     /*TODO: reenable when https://github.com/apollographql/router/issues/3642 is decided
     #[rhai_fn(get = "body", pure, return_raw)]
     pub(crate) fn get_originating_body_router_response(
