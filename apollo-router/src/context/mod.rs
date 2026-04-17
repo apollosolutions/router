@@ -215,6 +215,28 @@ impl Context {
         result.map_err(|e| e.into())
     }
 
+    /// Remove the entry for `key` and return the previous value, if any.
+    ///
+    /// Semantics:
+    ///  - If the key was absent, returns `Ok(None)`.
+    ///  - If the key was present but the stored value fails to deserialize into `V`,
+    ///    returns `Err`.
+    ///  - On success the entry has been removed from the context.
+    ///
+    /// Concurrency posture matches `insert` / `upsert`: `&self`, internal
+    /// synchronization provided by the backing `DashMap`.
+    pub fn remove<K, V>(&self, key: K) -> Result<Option<V>, BoxError>
+    where
+        K: Into<String>,
+        V: for<'de> serde::Deserialize<'de>,
+    {
+        self.entries
+            .remove(&key.into())
+            .map(|(_, v)| serde_json_bytes::from_value(v))
+            .transpose()
+            .map_err(|e| e.into())
+    }
+
     /// Upsert a JSON value in the context using the provided key and resolving
     /// function.
     ///
@@ -306,6 +328,26 @@ mod test {
         assert_eq!(c.get("present").unwrap(), Some(2));
         assert!(c.upsert("not_present", |v: usize| v + 1).is_ok());
         assert_eq!(c.get("not_present").unwrap(), Some(1));
+    }
+
+    #[test]
+    fn test_context_remove() {
+        let c = Context::new();
+        assert!(c.insert("removable", 42usize).is_ok());
+        assert_eq!(c.remove::<_, usize>("removable").unwrap(), Some(42));
+        // Second remove on the same key is a no-op.
+        assert_eq!(c.remove::<_, usize>("removable").unwrap(), None);
+        assert!(!c.contains_key("removable"));
+    }
+
+    #[test]
+    fn test_context_remove_type_mismatch() {
+        let c = Context::new();
+        assert!(c.insert("key", "not a number".to_string()).is_ok());
+        // Key is present but the stored value doesn't deserialize into the requested type.
+        assert!(c.remove::<_, usize>("key").is_err());
+        // Failed deserialization still consumed the entry from the DashMap — document this.
+        assert!(!c.contains_key("key"));
     }
 
     #[test]
