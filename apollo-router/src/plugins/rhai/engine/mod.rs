@@ -786,7 +786,7 @@ pub mod router_plugin {
         id: String,
     ) -> Result<(), Box<EvalAltResult>> {
         obj.with_mut(|response| {
-            response.set_subgraph_request_id(crate::services::SubgraphRequestId(id));
+            response.set_subgraph_request_id(crate::services::subgraph::SubgraphRequestId(id));
         });
         Ok(())
     }
