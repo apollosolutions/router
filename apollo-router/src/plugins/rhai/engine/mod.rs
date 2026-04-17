@@ -17,6 +17,7 @@ use http::uri::Parts;
 use http::uri::PathAndQuery;
 use http::uri::Scheme;
 use parking_lot::Mutex;
+use tower::BoxError;
 use uuid::Uuid;
 
 use super::Rhai;
@@ -494,6 +495,18 @@ pub mod router_context {
                 .unwrap_or(v)
         })
         .map_err(router_function_error)
+    }
+
+    // Register Context.remove() — removes the entry for `key`, returning the
+    // previous value as Dynamic (unit if the key was absent).
+    #[rhai_fn(name = "remove", return_raw)]
+    pub(crate) fn context_remove(
+        x: &mut Context,
+        key: &str,
+    ) -> Result<Dynamic, Box<EvalAltResult>> {
+        x.remove(key)
+            .map(|v: Option<Dynamic>| v.unwrap_or(Dynamic::UNIT))
+            .map_err(|e: BoxError| e.to_string().into())
     }
 
     #[rhai_fn(name = "to_string", pure)]
