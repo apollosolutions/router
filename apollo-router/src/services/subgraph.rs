@@ -375,9 +375,7 @@ impl Response {
             id,
         )
     }
-}
 
-impl Response {
     /// Replace the `subgraph_request_id` on this response.
     ///
     /// Intended for test harnesses (see `apollosolutions/rhai-test`).
