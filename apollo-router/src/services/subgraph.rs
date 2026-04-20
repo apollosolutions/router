@@ -375,6 +375,15 @@ impl Response {
             id,
         )
     }
+
+    /// Replace the `subgraph_request_id` on this response.
+    ///
+    /// Intended for test harnesses (see `apollosolutions/rhai-test`).
+    /// Production code paths assign the id once at construction via `Response::new`
+    /// / `new_from_response` and should not mutate it afterwards.
+    pub fn set_subgraph_request_id(&mut self, id: SubgraphRequestId) {
+        self.id = id;
+    }
 }
 
 impl Request {
@@ -493,5 +502,24 @@ mod tests {
             subgraph_req_1.to_sha256(&ignored_headers),
             subgraph_req_2.to_sha256(&ignored_headers)
         );
+    }
+
+    #[test]
+    fn test_set_subgraph_request_id() {
+        let mut resp = Response::fake_builder().build();
+        let original = resp.id.clone();
+        let new_id = SubgraphRequestId("custom-id-1".to_string());
+        resp.set_subgraph_request_id(new_id.clone());
+        assert_eq!(resp.id, new_id);
+        assert_ne!(resp.id, original);
+    }
+
+    #[test]
+    fn test_set_subgraph_request_id_empty_string_allowed() {
+        // The `SubgraphRequestId` constructor accepts any String, including empty.
+        // Matching that behavior in the setter keeps the surface consistent.
+        let mut resp = Response::fake_builder().build();
+        resp.set_subgraph_request_id(SubgraphRequestId(String::new()));
+        assert_eq!(resp.id.0, "");
     }
 }
