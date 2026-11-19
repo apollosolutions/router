@@ -17,7 +17,8 @@ These internals are not part of the Router's public API — they live behind `pu
 
 | Branch | Based on | Purpose |
 |---|---|---|
-| `feature/rhaitest-v2.12.0` | Official Router [v2.12.0](https://github.com/apollographql/router/releases/tag/v2.12.0) | Current branch used by `rhai-test` |
+| `feature/rhaitest-v2.12.0` | Official Router [v2.12.0](https://github.com/apollographql/router/releases/tag/v2.12.0) | Used by `rhai-test` 0.3.x (Rhai 1.23.6) |
+| `feature/rhaitest-v2.19.1` | Official Router [v2.19.1](https://github.com/apollographql/router/releases/tag/v2.19.1) | Current branch used by `rhai-test` (Rhai ~1.25) |
 
 When a new Router version ships with an updated Rhai engine, create a new branch from that tag and apply the same visibility changes.
 
